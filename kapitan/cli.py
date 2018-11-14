@@ -50,8 +50,9 @@ def main():
     eval_parser = subparser.add_parser('eval', help='evaluate jsonnet file')
     eval_parser.add_argument('jsonnet_file', type=str)
     eval_parser.add_argument('--output', type=str,
-                             choices=('yaml', 'json'),
-                             default=from_dot_kapitan('eval', 'output', 'yaml'),
+                             choices=('yaml', 'json', 'str'),
+                             default=from_dot_kapitan(
+                                 'eval', 'output', 'yaml'),
                              help='set output format, default is "yaml"')
     eval_parser.add_argument('--vars', type=str,
                              default=from_dot_kapitan('eval', 'vars', []),
@@ -59,13 +60,15 @@ def main():
                              metavar='VAR',
                              help='set variables')
     eval_parser.add_argument('--search-paths', '-J', type=str, nargs='+',
-                             default=from_dot_kapitan('eval', 'search-paths', ['.']),
+                             default=from_dot_kapitan(
+                                 'eval', 'search-paths', ['.']),
                              metavar='JPATH',
                              help='set search paths, default is ["."]')
 
     compile_parser = subparser.add_parser('compile', help='compile targets')
     compile_parser.add_argument('--search-paths', '-J', type=str, nargs='+',
-                                default=from_dot_kapitan('compile', 'search-paths', ['.']),
+                                default=from_dot_kapitan(
+                                    'compile', 'search-paths', ['.']),
                                 metavar='JPATH',
                                 help='set search paths, default is ["."]')
     compile_parser.add_argument('--verbose', '-v', help='set verbose mode',
@@ -78,19 +81,23 @@ def main():
                                 action='store_true',
                                 default=from_dot_kapitan('compile', 'quiet', False))
     compile_parser.add_argument('--output-path', type=str,
-                                default=from_dot_kapitan('compile', 'output-path', '.'),
+                                default=from_dot_kapitan(
+                                    'compile', 'output-path', '.'),
                                 metavar='PATH',
                                 help='set output path, default is "."')
     compile_parser.add_argument('--targets', '-t', help='targets to compile, default is all',
                                 type=str, nargs='+',
-                                default=from_dot_kapitan('compile', 'targets', []),
+                                default=from_dot_kapitan(
+                                    'compile', 'targets', []),
                                 metavar='TARGET')
     compile_parser.add_argument('--parallelism', '-p', type=int,
-                                default=from_dot_kapitan('compile', 'parallelism', 4),
+                                default=from_dot_kapitan(
+                                    'compile', 'parallelism', 4),
                                 metavar='INT',
                                 help='Number of concurrent compile processes, default is 4')
     compile_parser.add_argument('--indent', '-i', type=int,
-                                default=from_dot_kapitan('compile', 'indent', 2),
+                                default=from_dot_kapitan(
+                                    'compile', 'indent', 2),
                                 metavar='INT',
                                 help='Indentation spaces for YAML/JSON, default is 2')
     compile_parser.add_argument('--secrets-path', help='set secrets path, default is "./secrets"',
@@ -100,14 +107,16 @@ def main():
                                 action='store_true',
                                 default=from_dot_kapitan('compile', 'reveal', False))
     compile_parser.add_argument('--inventory-path',
-                                default=from_dot_kapitan('compile', 'inventory-path', './inventory'),
+                                default=from_dot_kapitan(
+                                    'compile', 'inventory-path', './inventory'),
                                 help='set inventory path, default is "./inventory"')
     compile_parser.add_argument('--cache', '-c',
                                 help='enable compilation caching to .kapitan_cache, default is False',
                                 action='store_true',
                                 default=from_dot_kapitan('compile', 'cache', False))
     compile_parser.add_argument('--cache-paths', type=str, nargs='+',
-                                default=from_dot_kapitan('compile', 'cache-paths', []),
+                                default=from_dot_kapitan(
+                                    'compile', 'cache-paths', []),
                                 metavar='PATH',
                                 help='cache additional paths to .kapitan_cache, default is []')
     compile_parser.add_argument('--ignore-version-check',
@@ -117,16 +126,19 @@ def main():
 
     inventory_parser = subparser.add_parser('inventory', help='show inventory')
     inventory_parser.add_argument('--target-name', '-t',
-                                  default=from_dot_kapitan('inventory', 'target-name', ''),
+                                  default=from_dot_kapitan(
+                                      'inventory', 'target-name', ''),
                                   help='set target name, default is all targets')
     inventory_parser.add_argument('--inventory-path',
-                                  default=from_dot_kapitan('inventory', 'inventory-path', './inventory'),
+                                  default=from_dot_kapitan(
+                                      'inventory', 'inventory-path', './inventory'),
                                   help='set inventory path, default is "./inventory"')
     inventory_parser.add_argument('--flat', '-F', help='flatten nested inventory variables',
                                   action='store_true',
                                   default=from_dot_kapitan('inventory', 'flat', False))
     inventory_parser.add_argument('--pattern', '-p',
-                                  default=from_dot_kapitan('inventory', 'pattern', ''),
+                                  default=from_dot_kapitan(
+                                      'inventory', 'pattern', ''),
                                   help='filter pattern (e.g. parameters.mysql.storage_class, or storage_class,' +
                                   ' or storage_*), default is ""')
     inventory_parser.add_argument('--verbose', '-v', help='set verbose mode',
@@ -138,7 +150,8 @@ def main():
     searchvar_parser.add_argument('searchvar', type=str, metavar='VARNAME',
                                   help='e.g. parameters.mysql.storage_class, or storage_class, or storage_*')
     searchvar_parser.add_argument('--inventory-path',
-                                  default=from_dot_kapitan('searchvar', 'inventory-path', './inventory'),
+                                  default=from_dot_kapitan(
+                                      'searchvar', 'inventory-path', './inventory'),
                                   help='set inventory path, default is "./inventory"')
     searchvar_parser.add_argument('--verbose', '-v', help='set verbose mode',
                                   action='store_true',
@@ -153,10 +166,12 @@ def main():
     secrets_parser.add_argument('--update', help='update recipients for secret token',
                                 metavar='TOKENNAME',)
     secrets_parser.add_argument('--update-targets', action='store_true',
-                                default=from_dot_kapitan('secrets', 'update-targets', False),
+                                default=from_dot_kapitan(
+                                    'secrets', 'update-targets', False),
                                 help='update target secrets')
     secrets_parser.add_argument('--validate-targets', action='store_true',
-                                default=from_dot_kapitan('secrets', 'validate-targets', False),
+                                default=from_dot_kapitan(
+                                    'secrets', 'validate-targets', False),
                                 help='validate target secrets')
     secrets_parser.add_argument('--base64', '-b64', help='base64 encode file content',
                                 action='store_true',
@@ -166,13 +181,16 @@ def main():
                                 default=from_dot_kapitan('secrets', 'reveal', False))
     secrets_parser.add_argument('--file', '-f', help='read file or directory, set "-" for stdin',
                                 metavar='FILENAME')
-    secrets_parser.add_argument('--target-name', '-t', help='grab recipients from target name')
+    secrets_parser.add_argument(
+        '--target-name', '-t', help='grab recipients from target name')
     secrets_parser.add_argument('--inventory-path',
-                                default=from_dot_kapitan('secrets', 'inventory-path', './inventory'),
+                                default=from_dot_kapitan(
+                                    'secrets', 'inventory-path', './inventory'),
                                 help='set inventory path, default is "./inventory"')
     secrets_parser.add_argument('--recipients', '-R', help='set recipients',
                                 type=str, nargs='+',
-                                default=from_dot_kapitan('secrets', 'recipients', []),
+                                default=from_dot_kapitan(
+                                    'secrets', 'recipients', []),
                                 metavar='RECIPIENT')
     secrets_parser.add_argument('--secrets-path', help='set secrets path, default is "./secrets"',
                                 default=from_dot_kapitan('secrets', 'secrets-path', './secrets'))
@@ -201,9 +219,12 @@ def main():
         if args.vars:
             ext_vars = dict(var.split('=') for var in args.vars)
         json_output = None
-        _search_imports = lambda cwd, imp: search_imports(cwd, imp, search_paths)
+
+        def _search_imports(cwd, imp): return search_imports(
+            cwd, imp, search_paths)
         json_output = jsonnet_file(file_path, import_callback=_search_imports,
-                                   native_callbacks=resource_callbacks(search_paths),
+                                   native_callbacks=resource_callbacks(
+                                       search_paths),
                                    ext_vars=ext_vars)
         if args.output == 'yaml':
             json_obj = json.loads(json_output)
@@ -252,7 +273,8 @@ def main():
                 inv = flatten_dict(inv)
                 yaml.dump(inv, sys.stdout, width=10000)
             else:
-                yaml.dump(inv, sys.stdout, Dumper=PrettyDumper, default_flow_style=False)
+                yaml.dump(inv, sys.stdout, Dumper=PrettyDumper,
+                          default_flow_style=False)
         except Exception as e:
             if not isinstance(e, KapitanError):
                 logger.error("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -326,22 +348,28 @@ def main():
             inv = inventory_reclass(args.inventory_path)
             targets = set(inv['nodes'].keys())
             secrets_path = os.path.abspath(args.secrets_path)
-            target_token_paths = search_target_token_paths(secrets_path, targets)
+            target_token_paths = search_target_token_paths(
+                secrets_path, targets)
             ret_code = 0
-            ref_controller.register_backend(GPGBackend(secrets_path))  # override gpg backend for new secrets_path
+            # override gpg backend for new secrets_path
+            ref_controller.register_backend(GPGBackend(secrets_path))
             for target_name, token_paths in target_token_paths.items():
                 try:
                     recipients = inv['nodes'][target_name]['parameters']['kapitan']['secrets']['recipients']
                     for token_path in token_paths:
                         secret_obj = ref_controller.backends['gpg'][token_path]
-                        target_fingerprints = set(lookup_fingerprints(recipients))
-                        secret_fingerprints = set(lookup_fingerprints(secret_obj.recipients))
+                        target_fingerprints = set(
+                            lookup_fingerprints(recipients))
+                        secret_fingerprints = set(
+                            lookup_fingerprints(secret_obj.recipients))
                         if target_fingerprints != secret_fingerprints:
                             if args.validate_targets:
-                                logger.info("%s recipient mismatch", token_path)
+                                logger.info(
+                                    "%s recipient mismatch", token_path)
                                 ret_code = 1
                             else:
-                                new_recipients = [dict([("fingerprint", f), ]) for f in target_fingerprints]
+                                new_recipients = [
+                                    dict([("fingerprint", f), ]) for f in target_fingerprints]
                                 secret_obj.update_recipients(new_recipients)
                                 ref_controller.backends['gpg'][token_path] = secret_obj
                 except KeyError:

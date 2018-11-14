@@ -53,11 +53,13 @@ def compile_targets(inventory_path, search_paths, output_path, parallel, targets
     # If --cache is set
     if kwargs.get('cache'):
         additional_cache_paths = kwargs.get('cache_paths')
-        generate_inv_cache_hashes(inventory_path, targets, additional_cache_paths)
+        generate_inv_cache_hashes(
+            inventory_path, targets, additional_cache_paths)
 
         if not targets:
             updated_targets = changed_targets(inventory_path, output_path)
-            logger.debug("Changed targets since last compilation: %s", updated_targets)
+            logger.debug(
+                "Changed targets since last compilation: %s", updated_targets)
             if len(updated_targets) == 0:
                 logger.info("No changes since last compilation.")
                 return
@@ -91,7 +93,8 @@ def compile_targets(inventory_path, search_paths, output_path, parallel, targets
 
                 shutil.rmtree(compile_path_target)
                 shutil.copytree(temp_path_target, compile_path_target)
-                logger.debug("Copied %s into %s", temp_path_target, compile_path_target)
+                logger.debug("Copied %s into %s",
+                             temp_path_target, compile_path_target)
         # otherwise override all targets
         else:
             shutil.rmtree(compile_path)
@@ -144,32 +147,39 @@ def generate_inv_cache_hashes(inventory_path, targets, cache_paths):
         for target in targets:
             try:
                 cached.inv_cache['inventory'][target] = {}
-                cached.inv_cache['inventory'][target]['classes'] = dictionary_hash(inv['nodes'][target]['classes'])
-                cached.inv_cache['inventory'][target]['parameters'] = dictionary_hash(inv['nodes'][target]['parameters'])
+                cached.inv_cache['inventory'][target]['classes'] = dictionary_hash(
+                    inv['nodes'][target]['classes'])
+                cached.inv_cache['inventory'][target]['parameters'] = dictionary_hash(
+                    inv['nodes'][target]['parameters'])
             except KeyError as e:
                 raise CompileError("target not found: {}".format(target))
     else:
         for target in inv['nodes']:
             cached.inv_cache['inventory'][target] = {}
-            cached.inv_cache['inventory'][target]['classes'] = dictionary_hash(inv['nodes'][target]['classes'])
-            cached.inv_cache['inventory'][target]['parameters'] = dictionary_hash(inv['nodes'][target]['parameters'])
+            cached.inv_cache['inventory'][target]['classes'] = dictionary_hash(
+                inv['nodes'][target]['classes'])
+            cached.inv_cache['inventory'][target]['parameters'] = dictionary_hash(
+                inv['nodes'][target]['parameters'])
 
             compile_obj = inv['nodes'][target]['parameters']['kapitan']['compile']
             for obj in compile_obj:
                 for input_path in obj['input_paths']:
                     base_folder = os.path.dirname(input_path).split('/')[0]
                     if base_folder == '':
-                        base_folder = os.path.basename(input_path).split('/')[0]
+                        base_folder = os.path.basename(
+                            input_path).split('/')[0]
 
                     if base_folder not in cached.inv_cache['folder'].keys():
                         if os.path.exists(base_folder) and os.path.isdir(base_folder):
-                            cached.inv_cache['folder'][base_folder] = directory_hash(base_folder)
+                            cached.inv_cache['folder'][base_folder] = directory_hash(
+                                base_folder)
 
                 # Cache additional folders set by --cache-paths
                 for path in cache_paths:
                     if path not in cached.inv_cache['folder'].keys():
                         if os.path.exists(path) and os.path.isdir(path):
-                            cached.inv_cache['folder'][path] = directory_hash(path)
+                            cached.inv_cache['folder'][path] = directory_hash(
+                                path)
 
         # Most commonly changed but not referenced in input_paths
         for common in ('lib', 'vendor', 'secrets'):
@@ -190,7 +200,8 @@ def changed_targets(inventory_path, output_path):
             try:
                 saved_inv_cache = yaml.safe_load(f)
             except Exception as e:
-                raise CompileError("Failed to load kapitan cache: %s", saved_inv_cache_path)
+                raise CompileError(
+                    "Failed to load kapitan cache: %s", saved_inv_cache_path)
 
     targets_list = list(inv['nodes'])
 
@@ -201,7 +212,8 @@ def changed_targets(inventory_path, output_path):
         for key, hash in cached.inv_cache['folder'].items():
             try:
                 if hash != saved_inv_cache['folder'][key]:
-                    logger.debug("%s folder hash changed, recompiling all targets", key)
+                    logger.debug(
+                        "%s folder hash changed, recompiling all targets", key)
                     return targets_list
             except KeyError as e:
                 # Errors usually occur when saved_inv_cache doesn't contain a new folder
@@ -211,10 +223,12 @@ def changed_targets(inventory_path, output_path):
         for target in targets_list:
             try:
                 if cached.inv_cache['inventory'][target]['classes'] != saved_inv_cache['inventory'][target]['classes']:
-                    logger.debug("classes hash changed in %s, recompiling", target)
+                    logger.debug(
+                        "classes hash changed in %s, recompiling", target)
                     targets.append(target)
                 elif cached.inv_cache['inventory'][target]['parameters'] != saved_inv_cache['inventory'][target]['parameters']:
-                    logger.debug("parameters hash changed in %s, recompiling", target)
+                    logger.debug(
+                        "parameters hash changed in %s, recompiling", target)
                     targets.append(target)
             except KeyError as e:
                 # Errors usually occur when saved_inv_cache doesn't contain a new target
@@ -276,10 +290,12 @@ def load_target_inventory(inventory_path, targets):
         try:
             target_obj = inv['nodes'][target_name]['parameters']['kapitan']
             valid_target_obj(target_obj)
-            logger.debug("load_target_inventory: found valid kapitan target %s", target_name)
+            logger.debug(
+                "load_target_inventory: found valid kapitan target %s", target_name)
             target_objs.append(target_obj)
         except KeyError:
-            logger.debug("load_target_inventory: target %s has no kapitan compile obj", target_name)
+            logger.debug(
+                "load_target_inventory: target %s has no kapitan compile obj", target_name)
             pass
 
     return target_objs
@@ -299,7 +315,8 @@ def compile_target(target_obj, search_paths, compile_path, ref_controller, **kwa
         output_path = obj["output_path"]
 
         if input_type == "jsonnet":
-            _compile_path = os.path.join(compile_path, target_name, output_path)
+            _compile_path = os.path.join(
+                compile_path, target_name, output_path)
             # support writing to an already existent dir
             try:
                 os.makedirs(_compile_path)
@@ -308,7 +325,8 @@ def compile_target(target_obj, search_paths, compile_path, ref_controller, **kwa
                 if ex.errno == errno.EEXIST:
                     pass
 
-            output_type = obj["output_type"]  # output_type is mandatory in jsonnet
+            # output_type is mandatory in jsonnet
+            output_type = obj["output_type"]
             for input_path in input_paths:
                 jsonnet_file_found = False
                 for path in search_paths:
@@ -320,14 +338,16 @@ def compile_target(target_obj, search_paths, compile_path, ref_controller, **kwa
                             compile_jsonnet(compile_file_sp, _compile_path, search_paths, ext_vars, ref_controller,
                                             output=output_type, target_name=target_name, **kwargs)
                         except KapitanError as e:
-                            raise CompileError("{}\nCompile error: failed to compile target: {}".format(e, target_name))
+                            raise CompileError(
+                                "{}\nCompile error: failed to compile target: {}".format(e, target_name))
 
                 if not jsonnet_file_found:
                     raise CompileError("Compile error: {} for target: {} not found in "
                                        "search_paths: {}".format(input_path, target_name, search_paths))
 
         if input_type == "jinja2":
-            _compile_path = os.path.join(compile_path, target_name, output_path)
+            _compile_path = os.path.join(
+                compile_path, target_name, output_path)
             # support writing to an already existent dir
             try:
                 os.makedirs(_compile_path)
@@ -349,7 +369,8 @@ def compile_target(target_obj, search_paths, compile_path, ref_controller, **kwa
                             compile_jinja2(compile_path_sp, ctx, _compile_path, ref_controller,
                                            target_name=target_name, **kwargs)
                         except KapitanError as e:
-                            raise CompileError("{}\nCompile error: failed to compile target: {}".format(e, target_name))
+                            raise CompileError(
+                                "{}\nCompile error: failed to compile target: {}".format(e, target_name))
 
                 if not jinja2_file_found:
                     raise CompileError("Compile error: {} for target: {} not found in "
@@ -396,9 +417,11 @@ def compile_jsonnet(file_path, compile_path, search_paths, ext_vars, ref_control
         target_name: default None, set to current target being compiled
         indent: default 2
     """
-    _search_imports = lambda cwd, imp: search_imports(cwd, imp, search_paths)
+    def _search_imports(cwd, imp): return search_imports(
+        cwd, imp, search_paths)
     json_output = jsonnet_file(file_path, import_callback=_search_imports,
-                               native_callbacks=resource_callbacks(search_paths),
+                               native_callbacks=resource_callbacks(
+                                   search_paths),
                                ext_vars=ext_vars)
     json_output = json.loads(json_output)
 
@@ -415,17 +438,24 @@ def compile_jsonnet(file_path, compile_path, search_paths, ext_vars, ref_control
     for item_key, item_value in json_output.items():
         # write each item to disk
         if output == 'json':
-            file_path = os.path.join(compile_path, '%s.%s' % (item_key, output))
+            file_path = os.path.join(compile_path, item_key)
             with CompiledFile(file_path, ref_controller, mode="w", reveal=reveal, target_name=target_name,
                               indent=indent) as fp:
                 fp.write_json(item_value)
                 logger.debug("Wrote %s", file_path)
         elif output == 'yaml':
-            file_path = os.path.join(compile_path, '%s.%s' % (item_key, "yml"))
+            file_path = os.path.join(compile_path, item_key)
             with CompiledFile(file_path, ref_controller, mode="w", reveal=reveal, target_name=target_name,
                               indent=indent) as fp:
                 fp.write_yaml(item_value)
                 logger.debug("Wrote %s", file_path)
+        elif output == 'str':
+            file_path = os.path.join(compile_path, item_key)
+            with CompiledFile(file_path, ref_controller, mode="w", reveal=reveal, target_name=target_name,
+                              indent=indent) as fp:
+                fp.write_str(item_value)
+                logger.debug("Wrote %s", file_path)
+
         else:
             raise ValueError('output is neither "json" or "yaml"')
 
@@ -478,7 +508,8 @@ class CompilingFile(object):
         if reveal:
             self.fp.write(self.revealer.reveal_raw(data))
         else:
-            self.fp.write(self.revealer.compile_raw(data, target_name=target_name))
+            self.fp.write(self.revealer.compile_raw(
+                data, target_name=target_name))
 
     def write_yaml(self, obj):
         """recursively compile or reveal refs and convert obj to yaml and write to file"""
@@ -489,7 +520,8 @@ class CompilingFile(object):
             self.revealer.reveal_obj(obj)
         else:
             self.revealer.compile_obj(obj, target_name=target_name)
-        yaml.dump(obj, stream=self.fp, indent=indent, Dumper=PrettyDumper, default_flow_style=False)
+        yaml.dump(obj, stream=self.fp, indent=indent,
+                  Dumper=PrettyDumper, default_flow_style=False)
 
     def write_json(self, obj):
         """recursively hash or reveal refs and convert obj to json and write to file"""
@@ -501,6 +533,17 @@ class CompilingFile(object):
         else:
             self.revealer.compile_obj(obj, target_name=target_name)
         json.dump(obj, self.fp, indent=indent, escape_forward_slashes=False)
+
+    def write_str(self, obj):
+        """recursively hash or reveal refs and convert obj to str and write to file"""
+        reveal = self.kwargs.get('reveal', False)
+        target_name = self.kwargs.get('target_name', None)
+        if reveal:
+            self.revealer.reveal_obj(obj)
+        else:
+            self.revealer.compile_obj(obj, target_name=target_name)
+        #json.dump(obj, self.fp, indent=indent, escape_forward_slashes=False)
+        self.fp.write(obj)
 
 
 class CompiledFile(object):
